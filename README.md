@@ -1,265 +1,255 @@
-# LangChain RAG PDF Chatbot
+# RAG PDF Chatbot
 
-A sophisticated Retrieval-Augmented Generation (RAG) chatbot built with LangChain components. Upload PDF documents and ask questions about their content using state-of-the-art language models and vector search.
+A Retrieval-Augmented Generation (RAG) chatbot that answers questions based on PDF content using **LangChain**, **OpenAI models**, **FAISS vector search**, and a clean **Gradio interface**.
 
-## Features
+## 🚀 Features
 
-- 📚 **Advanced PDF Processing**: PyMuPDFLoader for robust PDF text extraction
-- 🔍 **Semantic Search**: OpenAI embeddings with FAISS vector store
-- 💬 **Intelligent Responses**: ChatOpenAI with RetrievalQA chain
-- 💾 **Persistent Storage**: Save and load FAISS indices for faster startup
-- ⚙️ **LangChain Integration**: Built with production-ready LangChain components
-- 📊 **Comprehensive Monitoring**: Real-time status and logging
+- **LangChain Integration**: Built with LangChain for robust document processing and retrieval chains
+- **PDF Processing**: Advanced PDF text extraction using PyMuPDF with intelligent chunking
+- **Vector Storage**: Efficient FAISS vector storage with LangChain integration
+- **RetrievalQA Chain**: Uses LangChain's RetrievalQA for optimized question-answering
+- **Modern UI**: Clean, responsive Gradio web interface
+- **Persistent Storage**: FAISS indices are saved to disk for faster reloading
+- **Smart Retrieval**: Context-aware document retrieval with citation support
 
-## LangChain Components Used
+## 📋 Tech Stack
 
-- **PyMuPDFLoader**: Advanced PDF document loading and parsing
-- **RecursiveCharacterTextSplitter**: Intelligent text chunking
-- **OpenAIEmbeddings**: High-quality text embeddings
-- **FAISS**: Efficient vector similarity search
-- **ChatOpenAI**: OpenAI language model integration
-- **RetrievalQA**: Question-answering chain with retrieval
+- **LangChain**: Document processing, text splitting, embeddings, and QA chains
+- **OpenAI**: GPT models for chat and text embeddings
+- **FAISS**: Facebook AI Similarity Search for vector storage
+- **PyMuPDF**: Advanced PDF text extraction
+- **Gradio**: Modern web interface
+- **Python 3.8+**: Core runtime
 
-## Quick Start
+## 🛠️ Installation
 
-### Prerequisites
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd rag-pdf-chatbot
+   ```
 
-- Python 3.8+
-- OpenAI API key
+2. **Create a virtual environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-### Installation
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-1. Clone the repository:
-\`\`\`bash
-git clone <repository-url>
-cd rag-pdf-chatbot
-\`\`\`
+4. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   # Edit .env file and add your OpenAI API key
+   ```
 
-2. Create a virtual environment:
-\`\`\`bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-\`\`\`
+5. **Run the application:**
+   ```bash
+   python main.py
+   ```
 
-3. Install dependencies:
-\`\`\`bash
-pip install -r requirements.txt
-\`\`\`
+## ⚙️ Configuration
 
-4. Set up environment variables:
-\`\`\`bash
-cp .env.example .env
-# Edit .env and add your OpenAI API key
-\`\`\`
-
-### Usage
-
-1. Start the application:
-\`\`\`bash
-python main.py
-\`\`\`
-
-2. Open your browser and navigate to `http://localhost:7860`
-
-3. Upload a PDF file and wait for processing
-
-4. Start asking questions about your document!
-
-## Configuration
+Create a `.env` file from the provided example and configure the following:
 
 ### Required Settings
-- `RAG_OPENAI_API_KEY`: Your OpenAI API key (required)
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+```
 
-### Optional Settings
-- `RAG_OPENAI_MODEL`: OpenAI model (default: gpt-4o-mini)
-- `RAG_EMBEDDING_MODEL`: OpenAI embedding model (default: text-embedding-3-small)
-- `RAG_CHUNK_SIZE`: Text chunk size (default: 1000)
-- `RAG_CHUNK_OVERLAP`: Chunk overlap (default: 200)
-- `RAG_TEMPERATURE`: Response creativity (default: 0.7)
+### Optional Settings (with defaults)
+```env
+# Model Configuration
+EMBEDDING_MODEL=text-embedding-ada-002
+CHAT_MODEL=gpt-3.5-turbo
+MAX_TOKENS=1000
+TEMPERATURE=0.1
+TOP_K_DOCUMENTS=5
 
-### Getting OpenAI API Key
-1. Visit [OpenAI Platform](https://platform.openai.com/)
-2. Create an account or sign in
-3. Navigate to API Keys section
-4. Create a new API key
-5. Add it to your `.env` file as `RAG_OPENAI_API_KEY`
+# PDF Processing
+CHUNK_SIZE=1000
+CHUNK_OVERLAP=200
+MAX_FILE_SIZE_MB=50
 
-## Architecture
+# Application
+APP_TITLE=RAG PDF Chatbot
+APP_DESCRIPTION=Ask questions about your PDF documents
+DEBUG=False
+```
 
-\`\`\`
-src/
-├── langchain_processor.py      # PyMuPDFLoader + text splitting
-├── langchain_vectorstore.py    # OpenAI embeddings + FAISS
-├── langchain_rag_pipeline.py   # ChatOpenAI + RetrievalQA
-└── gradio_interface.py         # Web interface
-\`\`\`
+## 🎯 Usage
 
-## Technical Details
+1. **Start the application:**
+   ```bash
+   python main.py
+   ```
 
-- **Document Loading**: PyMuPDFLoader handles complex PDF layouts and metadata
-- **Text Splitting**: RecursiveCharacterTextSplitter with smart chunking
-- **Embeddings**: OpenAI's text-embedding-3-small for high-quality vectors
-- **Vector Store**: FAISS with cosine similarity search
-- **LLM**: ChatOpenAI with configurable temperature and token limits
-- **QA Chain**: RetrievalQA with custom prompts for accurate responses
+2. **Open your browser** and navigate to `http://localhost:7860`
 
-## Development
+3. **Upload a PDF document** using the file uploader
+
+4. **Wait for processing** - you'll see a confirmation message
+
+5. **Ask questions** about the PDF content in the chat interface
+
+6. **Get AI-powered answers** with citations and source references
+
+### Example Questions
+- "What is the main topic of this document?"
+- "Can you summarize the key points?"
+- "What does the document say about [specific topic]?"
+- "Are there any recommendations mentioned?"
+
+## 🏗️ Architecture
+
+```
+rag-pdf-chatbot/
+├── src/
+│   ├── pdf_processor.py      # PDF text extraction and chunking
+│   ├── embeddings.py         # OpenAI embeddings generation
+│   ├── vector_store.py       # FAISS vector operations
+│   ├── retriever.py          # Document retrieval logic
+│   ├── chatbot.py           # Main chatbot implementation
+│   └── ui.py                # Gradio web interface
+├── config/
+│   └── settings.py          # Configuration management
+├── data/
+│   ├── uploads/             # Uploaded PDF files
+│   ├── processed/           # Processed text chunks
+│   └── faiss_index/         # FAISS index files
+├── main.py                  # Application entry point
+└── requirements.txt         # Python dependencies
+```
+
+## 🔧 Technical Details
+
+### LangChain Integration
+- **Document Loaders**: PyMuPDFLoader for superior PDF text extraction
+- **Text Splitters**: RecursiveCharacterTextSplitter for intelligent chunking
+- **Embeddings**: OpenAIEmbeddings with automatic caching
+- **Vector Stores**: FAISS integration with persistence
+- **Chains**: RetrievalQA chain for optimized question-answering
+
+### PDF Processing
+- Uses PyMuPDF (via LangChain) for robust text extraction
+- Recursive character text splitting with configurable overlap
+- Preserves document metadata (page numbers, source files)
+- Handles complex document layouts and formatting
+
+### Vector Storage
+- LangChain FAISS integration for seamless vector operations
+- Automatic embedding generation during document ingestion
+- Persistent storage with save/load functionality
+- Optimized similarity search with score ranking
+
+### Retrieval System
+- Uses LangChain's RetrievalQA chain for structured retrieval
+- Configurable top-k document retrieval
+- Context-aware responses with source citations
+- Automatic prompt engineering for RAG scenarios
+
+### Chat Interface
+- Built with Gradio for modern, responsive UI
+- Real-time document processing with progress feedback
+- Conversation history management
+- System status monitoring and diagnostics
+
+## 🔒 Security & Performance
+
+- **API Key Management**: Secure environment variable handling
+- **File Validation**: PDF file validation and size limits
+- **Error Handling**: Comprehensive error handling with user-friendly messages
+- **Caching**: Embedding caching for improved performance
+- **Memory Management**: Efficient FAISS operations for large documents
+
+## 📊 Performance Tips
+
+1. **Chunk Size**: Adjust `CHUNK_SIZE` based on your documents (500-2000 tokens)
+2. **Overlap**: Use `CHUNK_OVERLAP` to maintain context between chunks
+3. **Top-K**: Increase `TOP_K_DOCUMENTS` for more comprehensive answers
+4. **File Size**: Keep PDFs under the configured size limit for best performance
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+1. **"Import could not be resolved" errors**:
+   - Make sure you've installed all dependencies: `pip install -r requirements.txt`
+
+2. **OpenAI API errors**:
+   - Check your API key in the `.env` file
+   - Ensure you have sufficient API credits
+
+3. **FAISS installation issues**:
+   - Install FAISS CPU version: `pip install faiss-cpu`
+   - For GPU support: `pip install faiss-gpu` (requires CUDA)
+
+4. **PDF processing errors**:
+   - Ensure PDFs contain extractable text (not just images)
+   - Check file size limits in configuration
+
+5. **Memory issues**:
+   - Reduce chunk size or number of documents
+   - Consider using a machine with more RAM
+
+### Logs
+Application logs are saved to `chatbot.log` for debugging.
+
+## 🧪 Development
 
 ### Running Tests
-\`\`\`bash
+```bash
+# Install test dependencies
+pip install pytest pytest-cov
+
+# Run tests
 pytest tests/
-\`\`\`
+```
 
-### Code Formatting
-\`\`\`bash
-black src/ tests/
-isort src/ tests/
-\`\`\`
+### Code Quality
+```bash
+# Install development dependencies
+pip install black flake8 mypy
 
-## License
+# Format code
+black src/
 
-MIT License - see LICENSE file for details.
-\`\`\`
+# Lint code
+flake8 src/
 
-Create tests for the LangChain components:
+# Type checking
+mypy src/
+```
 
-```python file="tests/test_langchain_components.py"
-"""Tests for LangChain components."""
+## 📝 License
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-from pathlib import Path
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-from src.langchain_processor import LangChainDocumentProcessor
-from src.langchain_vectorstore import LangChainVectorStore
-from src.langchain_rag_pipeline import LangChainRAGPipeline
+## 🤝 Contributing
 
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-class TestLangChainDocumentProcessor:
-    """Test cases for LangChainDocumentProcessor."""
-    
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.processor = LangChainDocumentProcessor()
-    
-    def test_initialization(self):
-        """Test processor initialization."""
-        assert self.processor.chunk_size > 0
-        assert self.processor.chunk_overlap >= 0
-        assert self.processor.text_splitter is not None
-    
-    def test_validate_pdf_nonexistent(self):
-        """Test PDF validation with non-existent file."""
-        fake_path = Path("nonexistent.pdf")
-        assert not self.processor.validate_pdf(fake_path)
-    
-    def test_get_text_from_documents(self):
-        """Test text extraction from documents."""
-        # Mock documents
-        mock_docs = [
-            Mock(page_content="First document content"),
-            Mock(page_content="Second document content"),
-            Mock(page_content="")  # Empty content should be filtered
-        ]
-        
-        texts = self.processor.get_text_from_documents(mock_docs)
-        
-        assert len(texts) == 2
-        assert "First document content" in texts
-        assert "Second document content" in texts
+## 📞 Support
 
+For issues and questions:
+1. Check the troubleshooting section above
+2. Review the logs in `chatbot.log`
+3. Open an issue on GitHub
 
-class TestLangChainVectorStore:
-    """Test cases for LangChainVectorStore."""
-    
-    def setup_method(self):
-        """Set up test fixtures."""
-        with patch('src.langchain_vectorstore.OpenAIEmbeddings'):
-            self.vector_store = LangChainVectorStore()
-    
-    def test_initialization(self):
-        """Test vector store initialization."""
-        assert self.vector_store.index_path is not None
-        assert isinstance(self.vector_store.documents, list)
-    
-    def test_get_status(self):
-        """Test status information retrieval."""
-        status = self.vector_store.get_status()
-        
-        assert isinstance(status, dict)
-        assert "initialized" in status
-        assert "embeddings_ready" in status
-        assert "total_documents" in status
-        assert "embedding_model" in status
-    
-    @patch('src.langchain_vectorstore.FAISS')
-    def test_create_vectorstore(self, mock_faiss):
-        """Test vector store creation."""
-        # Mock embeddings
-        self.vector_store.embeddings = Mock()
-        
-        # Mock documents
-        mock_docs = [Mock(page_content="Test content")]
-        
-        # Mock FAISS.from_documents
-        mock_faiss.from_documents.return_value = Mock()
-        
-        result = self.vector_store.create_vectorstore(mock_docs)
-        
-        assert result is True
-        mock_faiss.from_documents.assert_called_once()
+## 🙏 Acknowledgments
 
+- **OpenAI** for the GPT models and embeddings API
+- **Facebook AI Research** for FAISS vector search
+- **Gradio** for the user interface framework
+- **PyPDF2** for PDF processing capabilities
 
-class TestLangChainRAGPipeline:
-    """Test cases for LangChainRAGPipeline."""
-    
-    @patch('src.langchain_rag_pipeline.ChatOpenAI')
-    @patch('src.langchain_rag_pipeline.LangChainVectorStore')
-    @patch('src.langchain_rag_pipeline.LangChainDocumentProcessor')
-    def setup_method(self, mock_processor, mock_vector_store, mock_chat_openai):
-        """Set up test fixtures."""
-        self.pipeline = LangChainRAGPipeline()
-    
-    def test_initialization(self):
-        """Test pipeline initialization."""
-        assert self.pipeline.document_processor is not None
-        assert self.pipeline.vector_store is not None
-        assert hasattr(self.pipeline, 'is_initialized')
-        assert hasattr(self.pipeline, 'current_pdf_name')
-    
-    def test_get_status(self):
-        """Test status information retrieval."""
-        # Mock vector store status
-        self.pipeline.vector_store.get_status = Mock(return_value={
-            "initialized": False,
-            "embeddings_ready": False,
-            "total_documents": 0,
-            "embedding_model": "test-model"
-        })
-        
-        status = self.pipeline.get_status()
-        
-        assert isinstance(status, dict)
-        assert "initialized" in status
-        assert "current_pdf" in status
-        assert "total_documents" in status
-        assert "llm_ready" in status
-        assert "qa_chain_ready" in status
-    
-    def test_query_not_initialized(self):
-        """Test query when pipeline is not initialized."""
-        self.pipeline.is_initialized = False
-        
-        result = self.pipeline.query("Test question")
-        
-        assert result is None
-    
-    def test_query_empty_question(self):
-        """Test query with empty question."""
-        self.pipeline.is_initialized = True
-        
-        result = self.pipeline.query("")
-        assert result is None
-        
-        result = self.pipeline.query("   ")
-        assert result is None
+---
+
+**Happy chatting with your PDFs! 🤖📄**

@@ -1,70 +1,84 @@
-"""Main application entry point for the LangChain RAG PDF Chatbot."""
+"""Main entry point for RAG PDF Chatbot application."""
 
+import os
 import sys
+import logging
 from pathlib import Path
 
-from loguru import logger
+# Add src directory to Python path
+src_path = Path(__file__).parent / "src"
+sys.path.insert(0, str(src_path))
 
-from config.settings import settings
-from src.gradio_interface import GradioInterface
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('chatbot.log')
+    ]
+)
 
+logger = logging.getLogger(__name__)
 
-def setup_logging() -> None:
-    """Configure logging for the application."""
-    # Remove default logger
-    logger.remove()
-    
-    # Add console logging
-    logger.add(
-        sys.stdout,
-        level=settings.log_level,
-        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
-    )
-    
-    # Add file logging if specified
-    if settings.log_file:
-        log_path = Path(settings.log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        logger.add(
-            log_path,
-            level=settings.log_level,
-            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
-            rotation="10 MB",
-            retention="7 days"
-        )
-
-
-def main() -> None:
-    """Main application function."""
-    # Setup logging
-    setup_logging()
-    
-    logger.info("Starting LangChain RAG PDF Chatbot")
-    
-    # Check for OpenAI API key
-    if not settings.openai_api_key:
-        logger.error("OpenAI API key not provided. Please set RAG_OPENAI_API_KEY in your .env file")
-        sys.exit(1)
-    
-    logger.info(f"Configuration: OpenAI Model={settings.openai_model}, Embedding Model={settings.embedding_model}")
-    
+def main():
+    """Main function to launch the RAG PDF Chatbot."""
     try:
-        # Create and launch the Gradio interface
-        app = GradioInterface()
+        # Import after path setup
+        from src.ui import launch_app
+        from config.settings import settings
         
-        # Log system status
-        status = app.rag_pipeline.get_status()
-        logger.info(f"System Status: LLM Ready={status['llm_ready']}, Embeddings Ready={status['embeddings_ready']}")
+        logger.info("Starting RAG PDF Chatbot...")
         
-        app.launch()
+        # Validate configuration
+        try:
+            settings.validate()
+            logger.info("Configuration validated successfully")
+        except ValueError as e:
+            logger.error(f"Configuration error: {e}")
+            print(f"\n❌ Configuration Error: {e}")
+            print("\nPlease check your .env file and ensure all required variables are set.")
+            print("You can copy .env.example to .env and fill in your values.")
+            return 1
+        
+        # Create necessary directories
+        os.makedirs("data/uploads", exist_ok=True)
+        os.makedirs("data/processed", exist_ok=True)
+        os.makedirs("data/faiss_index", exist_ok=True)
+        
+        # Launch the application
+        logger.info("Launching Gradio interface...")
+        print(f"\n🚀 Starting {settings.APP_TITLE}...")
+        print(f"📄 {settings.APP_DESCRIPTION}")
+        print("\n🔧 Configuration:")
+        print(f"   • Chat Model: {settings.CHAT_MODEL}")
+        print(f"   • Embedding Model: {settings.EMBEDDING_MODEL}")
+        print(f"   • Max Tokens: {settings.MAX_TOKENS}")
+        print(f"   • Temperature: {settings.TEMPERATURE}")
+        print(f"   • Top-K Documents: {settings.TOP_K_DOCUMENTS}")
+        print(f"   • Chunk Size: {settings.CHUNK_SIZE}")
+        print(f"   • Chunk Overlap: {settings.CHUNK_OVERLAP}")
+        print(f"   • Max File Size: {settings.MAX_FILE_SIZE_MB}MB")
+        print("\n🌐 The web interface will open in your browser...")
+        print("💡 Upload a PDF file and start asking questions about its content!")
+        
+        # Launch with default settings
+        launch_app(
+            share=False,  # Set to True to create a public link
+            debug=settings.DEBUG,
+            server_name="0.0.0.0",  # Allow access from other devices on network
+            server_port=7860
+        )
         
     except KeyboardInterrupt:
         logger.info("Application stopped by user")
+        print("\n👋 Goodbye!")
+        return 0
     except Exception as e:
-        logger.error(f"Application failed: {e}")
-        sys.exit(1)
-
+        logger.error(f"Failed to start application: {str(e)}")
+        print(f"\n❌ Error starting application: {str(e)}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit_code = main()
+    sys.exit(exit_code)

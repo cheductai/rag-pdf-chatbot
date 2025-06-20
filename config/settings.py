@@ -1,61 +1,100 @@
-"""Configuration management for the RAG PDF Chatbot."""
+"""Configuration management for RAG PDF Chatbot."""
 
 import os
-from pathlib import Path
-from typing import Optional
+from typing import Dict, Any
+from dotenv import load_dotenv
 
-from pydantic import BaseSettings, Field
+# Load environment variables
+load_dotenv()
 
-
-class Settings(BaseSettings):
-    """Application settings with environment variable support."""
+class Settings:
+    """Application settings using Singleton pattern."""
     
-    # OpenAI Configuration
-    openai_api_key: Optional[str] = Field(default=None, description="OpenAI API key")
-    openai_model: str = Field(default="gpt-4o-mini", description="OpenAI model to use")
-    embedding_model: str = Field(default="text-embedding-3-small", description="OpenAI embedding model")
-    max_tokens: int = Field(default=1000, description="Maximum tokens for response generation")
-    temperature: float = Field(default=0.7, description="Temperature for response generation")
+    _instance = None
     
-    # Processing Configuration
-    chunk_size: int = Field(default=1000, description="Text chunk size for processing")
-    chunk_overlap: int = Field(default=200, description="Overlap between chunks")
-    max_file_size_mb: int = Field(default=50, description="Maximum PDF file size in MB")
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Settings, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
     
-    # FAISS Configuration
-    faiss_index_path: str = Field(default="data/faiss_index", description="Path to FAISS index")
-    similarity_threshold: float = Field(default=0.7, description="Similarity threshold for retrieval")
-    top_k_results: int = Field(default=5, description="Number of top results to retrieve")
+    def __init__(self):
+        if self._initialized:
+            return
+        
+        # OpenAI Configuration
+        self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+        self.EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-ada-002")
+        self.CHAT_MODEL = os.getenv("CHAT_MODEL", "gpt-3.5-turbo")
+        self.MAX_TOKENS = int(os.getenv("MAX_TOKENS", "1000"))
+        self.TEMPERATURE = float(os.getenv("TEMPERATURE", "0.1"))
+        self.TOP_K_DOCUMENTS = int(os.getenv("TOP_K_DOCUMENTS", "5"))
+        
+        # PDF Processing Configuration
+        self.CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "1000"))
+        self.CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "200"))
+        self.MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", "50"))
+        
+        # FAISS Configuration
+        self.FAISS_INDEX_PATH = os.getenv("FAISS_INDEX_PATH", "data/faiss_index/")
+        self.FAISS_METADATA_PATH = os.getenv("FAISS_METADATA_PATH", "data/faiss_index/metadata.json")
+        
+        # Application Configuration
+        self.APP_TITLE = os.getenv("APP_TITLE", "RAG PDF Chatbot")
+        self.APP_DESCRIPTION = os.getenv("APP_DESCRIPTION", "Ask questions about your PDF documents")
+        self.DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+        
+        # Paths
+        self.DATA_DIR = "data"
+        self.UPLOADS_DIR = "data/uploads"
+        self.PROCESSED_DIR = "data/processed"
+        
+        self._initialized = True
     
-    # Gradio Configuration
-    gradio_port: int = Field(default=7860, description="Gradio server port")
-    gradio_share: bool = Field(default=False, description="Create public Gradio link")
+    def validate(self) -> bool:
+        """Validate required configuration."""
+        if not self.OPENAI_API_KEY:
+            raise ValueError("OPENAI_API_KEY is required. Please set it in your .env file.")
+        return True
     
-    # Logging Configuration
-    log_level: str = Field(default="INFO", description="Logging level")
-    log_file: Optional[str] = Field(default="logs/app.log", description="Log file path")
+    def get_pdf_config(self) -> Dict[str, Any]:
+        """Get PDF processing configuration."""
+        return {
+            "chunk_size": self.CHUNK_SIZE,
+            "chunk_overlap": self.CHUNK_OVERLAP,
+            "max_file_size_mb": self.MAX_FILE_SIZE_MB,
+            "supported_formats": [".pdf"]
+        }
     
-    # Directories
-    data_dir: Path = Field(default=Path("data"), description="Data directory")
-    logs_dir: Path = Field(default=Path("logs"), description="Logs directory")
-    temp_dir: Path = Field(default=Path("temp"), description="Temporary files directory")
+    def get_faiss_config(self) -> Dict[str, Any]:
+        """Get FAISS configuration."""
+        return {
+            "index_type": "IndexFlatIP",
+            "dimension": 1536,  # OpenAI embedding dimension
+            "save_path": self.FAISS_INDEX_PATH,
+            "metadata_path": self.FAISS_METADATA_PATH
+        }
     
-    class Config:
-        env_file = ".env"
-        env_prefix = "RAG_"
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._create_directories()
-        # Set OpenAI API key as environment variable for LangChain
-        if self.openai_api_key:
-            os.environ["OPENAI_API_KEY"] = self.openai_api_key
+    def get_openai_config(self) -> Dict[str, Any]:
+        """Get OpenAI configuration."""
+        return {
+            "api_key": self.OPENAI_API_KEY,
+            "embedding_model": self.EMBEDDING_MODEL,
+            "chat_model": self.CHAT_MODEL,
+            "max_tokens": self.MAX_TOKENS,
+            "temperature": self.TEMPERATURE,
+            "top_k_documents": self.TOP_K_DOCUMENTS
+        }
     
-    def _create_directories(self) -> None:
-        """Create necessary directories if they don't exist."""
-        for directory in [self.data_dir, self.logs_dir, self.temp_dir]:
-            directory.mkdir(parents=True, exist_ok=True)
-
+    def get_gradio_config(self) -> Dict[str, Any]:
+        """Get Gradio configuration."""
+        return {
+            "theme": "soft",
+            "title": self.APP_TITLE,
+            "description": self.APP_DESCRIPTION,
+            "max_file_size": self.MAX_FILE_SIZE_MB * 1024 * 1024,  # Convert to bytes
+            "allow_flagging": "never"
+        }
 
 # Global settings instance
 settings = Settings()
